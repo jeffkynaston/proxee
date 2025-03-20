@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3030;
 const cookieStore = {};
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://cdn.stage.goboomtown.com'],
+  origin: ['http://localhost:5173', 'https://cdn.stage.goboomtown.com', 'https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--5a421e5b.local', 'credentialless.webcontainer-api.io', 'https://*.netlify.app', 'https://*.webcontainer-api.io', 'https://credentialless.webcontainer-api.io'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [

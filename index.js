@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3030;
 const cookieStore = {};
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://cdn.stage.goboomtown.com', 'https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--5a421e5b.local-credentialless.webcontainer-api.io/', 'https://*.local-credentialless.webcontainer-api.io/', 'https://*.netlify.app', 'https://*.webcontainer-api.io', 'https://credentialless.webcontainer-api.io'],
+  origin: ['http://localhost:5174', 'https://cdn.stage.goboomtown.com', 'https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--5a421e5b.local-credentialless.webcontainer-api.io/', 'https://*.local-credentialless.webcontainer-api.io/', 'https://*.netlify.app', 'https://*.webcontainer-api.io', 'https://credentialless.webcontainer-api.io'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
@@ -24,7 +24,8 @@ const corsOptions = {
     'Accept-Language',
     'Referer',
     'Connection',
-    'User-Agent'
+    'User-Agent',
+    'Platform-Version'
   ]
 };
 
@@ -168,7 +169,7 @@ app.get('*', async (req, res) => {
     
     // Forward the original request headers that might be needed
     const headers = {};
-    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer'].forEach(header => {
+    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer', 'platform-version'].forEach(header => {
       if (req.headers[header]) {
         headers[header] = req.headers[header];
       }
@@ -251,7 +252,7 @@ app.post('*', async (req, res) => {
     
     // Forward the original request headers
     const headers = {};
-    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer'].forEach(header => {
+    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer', 'platform-version'].forEach(header => {
       if (req.headers[header]) {
         headers[header] = req.headers[header];
       }
@@ -340,7 +341,7 @@ app.put('*', async (req, res) => {
     
     // Forward the original request headers
     const headers = {};
-    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer'].forEach(header => {
+    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer', 'platform-version'].forEach(header => {
       if (req.headers[header]) {
         headers[header] = req.headers[header];
       }
@@ -429,7 +430,7 @@ app.delete('*', async (req, res) => {
     
     // Forward the original request headers
     const headers = {};
-    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer'].forEach(header => {
+    ['authorization', 'x-request-id', 'x-boomtown-client-instance-id', 'x-boomtown-csrf-token', 'content-type', 'origin', 'referer', 'platform-version'].forEach(header => {
       if (req.headers[header]) {
         headers[header] = req.headers[header];
       }

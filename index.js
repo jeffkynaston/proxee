@@ -28,7 +28,7 @@ const corsOptions = {
   ]
 };
 
-// Add a CORS debug logging middleware
+// Enhanced CORS debug logging middleware
 app.use((req, res, next) => {
   console.log('\n--- CORS Debug - Incoming Request ---');
   console.log(`Path: ${req.path}`);
@@ -37,12 +37,65 @@ app.use((req, res, next) => {
   Object.keys(req.headers).forEach(key => {
     console.log(`  ${key}: ${req.headers[key]}`);
   });
+  
+  // Check if the origin is not in the allowed list
+  const origin = req.headers.origin;
+  if (origin && !corsOptions.origin.includes(origin) && !isWildcardMatch(origin, corsOptions.origin)) {
+    console.log('\n⚠️ CORS WARNING ⚠️');
+    console.log(`Origin "${origin}" is not in the allowed list!`);
+    console.log('This request will likely fail with a CORS error');
+    console.log('Allowed origins:');
+    corsOptions.origin.forEach(allowedOrigin => {
+      console.log(`  - ${allowedOrigin}`);
+    });
+    console.log('⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\n');
+  }
+  
   console.log('-------------------------------\n');
   next();
 });
 
+// Helper function to check if an origin matches a wildcard pattern
+function isWildcardMatch(origin, allowedOrigins) {
+  // Convert to URL to extract domain parts
+  try {
+    const url = new URL(origin);
+    
+    // Check each allowed origin for wildcard matches
+    return allowedOrigins.some(pattern => {
+      if (!pattern.includes('*')) return false;
+      
+      // Replace the wildcard with a regex pattern
+      const regexPattern = pattern
+        .replace(/\./g, '\\.')  // Escape dots
+        .replace(/\*/g, '.*');  // Replace * with .*
+        
+      const regex = new RegExp(`^${regexPattern}$`);
+      return regex.test(origin);
+    });
+  } catch (e) {
+    return false;
+  }
+}
+
 // Use the cors middleware
-app.use(cors(corsOptions));
+app.use(cors({
+  ...corsOptions,
+  // Add a custom origin function to better handle wildcards
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin is in the allowed list or matches a wildcard
+    if (corsOptions.origin.includes(origin) || isWildcardMatch(origin, corsOptions.origin)) {
+      return callback(null, true);
+    }
+    
+    // Origin not allowed
+    console.log(`CORS Error: Origin ${origin} not allowed`);
+    return callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
+  }
+}));
 
 // Parse JSON and URL-encoded form data
 app.use(express.json());

@@ -58,12 +58,22 @@ app.use((req, res, next) => {
 
 // Helper function to check if an origin matches a wildcard pattern
 function isWildcardMatch(origin, allowedOrigins) {
+  // Remove trailing slash if present for consistent comparison
+  if (origin && origin.endsWith('/')) {
+    origin = origin.slice(0, -1);
+  }
+  
   // Convert to URL to extract domain parts
   try {
     const url = new URL(origin);
     
     // Check each allowed origin for wildcard matches
     return allowedOrigins.some(pattern => {
+      // Remove trailing slash if present
+      if (pattern && pattern.endsWith('/')) {
+        pattern = pattern.slice(0, -1);
+      }
+      
       if (!pattern.includes('*')) return false;
       
       // Replace the wildcard with a regex pattern
@@ -108,19 +118,26 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-// Helper function to parse Set-Cookie header and extract cookies
+// Improved cookie parsing
 function parseSetCookieHeader(header) {
   if (!header) return null;
   
-  // Extract the cookie name and value
-  const match = header.match(/^([^=]+)=([^;]+)/);
-  if (match) {
+  // Extract the cookie name and value (first part before semicolon)
+  const firstSemicolon = header.indexOf(';');
+  const nameValuePair = firstSemicolon > -1 ? header.substring(0, firstSemicolon) : header;
+  const equalsSign = nameValuePair.indexOf('=');
+  
+  if (equalsSign > -1) {
+    const name = nameValuePair.substring(0, equalsSign).trim();
+    const value = nameValuePair.substring(equalsSign + 1).trim();
+    
     return {
-      name: match[1],
-      value: match[2],
+      name: name,
+      value: value,
       fullHeader: header // Keep the full header for future use
     };
   }
+  
   return null;
 }
 
@@ -149,13 +166,13 @@ function buildCookieHeader(clientId) {
     .join('; ');
 }
 
-// Forward all other GET requests to https://app.stage.goboomtown.com
+// Forward all other GET requests to https://app.goboomtown.com
 app.get('*', async (req, res) => {
   if (req.path === '/') return; // Skip the root path as it's handled above
   
   try {
     // Construct the URL with query parameters
-    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.goboomtown.com${req.path}`);
     
     // Add all query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -209,13 +226,18 @@ app.get('*', async (req, res) => {
       
     if (clientId && setCookieHeaders && setCookieHeaders.length > 0) {
       console.log('Set-Cookie headers found:');
-      for (const header of setCookieHeaders) {
-        console.log(`  ${header}`);
-        const cookie = parseSetCookieHeader(header);
+      
+      // Forward any Set-Cookie headers back to the client
+      // This ensures the client's cookies stay in sync with the API
+      setCookieHeaders.forEach(cookieHeader => {
+        console.log(`  ${cookieHeader}`);
+        res.setHeader('Set-Cookie', cookieHeader);
+        
+        const cookie = parseSetCookieHeader(cookieHeader);
         if (cookie && cookie.name === 'relay') {
           storeCookie(clientId, cookie);
         }
-      }
+      });
     }
     
     // Get the response data as JSON
@@ -235,10 +257,10 @@ app.get('*', async (req, res) => {
   }
 });
 
-// Forward all POST requests to https://app.stage.goboomtown.com
+// Forward all POST requests to https://app.goboomtown.com
 app.post('*', async (req, res) => {
   try {
-    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.goboomtown.com${req.path}`);
     
     // Add any query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -293,13 +315,18 @@ app.post('*', async (req, res) => {
       
     if (clientId && setCookieHeaders && setCookieHeaders.length > 0) {
       console.log('Set-Cookie headers found:');
-      for (const header of setCookieHeaders) {
-        console.log(`  ${header}`);
-        const cookie = parseSetCookieHeader(header);
+      
+      // Forward any Set-Cookie headers back to the client
+      // This ensures the client's cookies stay in sync with the API
+      setCookieHeaders.forEach(cookieHeader => {
+        console.log(`  ${cookieHeader}`);
+        res.setHeader('Set-Cookie', cookieHeader);
+        
+        const cookie = parseSetCookieHeader(cookieHeader);
         if (cookie && cookie.name === 'relay') {
           storeCookie(clientId, cookie);
         }
-      }
+      });
     }
     
     // Try to get JSON response, but handle other types too
@@ -324,10 +351,10 @@ app.post('*', async (req, res) => {
   }
 });
 
-// Forward all PUT requests to https://app.stage.goboomtown.com
+// Forward all PUT requests to https://app.goboomtown.com
 app.put('*', async (req, res) => {
   try {
-    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.goboomtown.com${req.path}`);
     
     // Add any query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -382,13 +409,18 @@ app.put('*', async (req, res) => {
       
     if (clientId && setCookieHeaders && setCookieHeaders.length > 0) {
       console.log('Set-Cookie headers found:');
-      for (const header of setCookieHeaders) {
-        console.log(`  ${header}`);
-        const cookie = parseSetCookieHeader(header);
+      
+      // Forward any Set-Cookie headers back to the client
+      // This ensures the client's cookies stay in sync with the API
+      setCookieHeaders.forEach(cookieHeader => {
+        console.log(`  ${cookieHeader}`);
+        res.setHeader('Set-Cookie', cookieHeader);
+        
+        const cookie = parseSetCookieHeader(cookieHeader);
         if (cookie && cookie.name === 'relay') {
           storeCookie(clientId, cookie);
         }
-      }
+      });
     }
     
     // Try to get JSON response, but handle other types too
@@ -413,10 +445,10 @@ app.put('*', async (req, res) => {
   }
 });
 
-// Forward all DELETE requests to https://app.stage.goboomtown.com
+// Forward all DELETE requests to https://app.goboomtown.com
 app.delete('*', async (req, res) => {
   try {
-    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.goboomtown.com${req.path}`);
     
     // Add any query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -472,13 +504,18 @@ app.delete('*', async (req, res) => {
       
     if (clientId && setCookieHeaders && setCookieHeaders.length > 0) {
       console.log('Set-Cookie headers found:');
-      for (const header of setCookieHeaders) {
-        console.log(`  ${header}`);
-        const cookie = parseSetCookieHeader(header);
+      
+      // Forward any Set-Cookie headers back to the client
+      // This ensures the client's cookies stay in sync with the API
+      setCookieHeaders.forEach(cookieHeader => {
+        console.log(`  ${cookieHeader}`);
+        res.setHeader('Set-Cookie', cookieHeader);
+        
+        const cookie = parseSetCookieHeader(cookieHeader);
         if (cookie && cookie.name === 'relay') {
           storeCookie(clientId, cookie);
         }
-      }
+      });
     }
     
     // Try to get JSON response, but handle other types too

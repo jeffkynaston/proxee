@@ -166,13 +166,13 @@ function buildCookieHeader(clientId) {
     .join('; ');
 }
 
-// Forward all other GET requests to https://app.goboomtown.com
+// Forward all other GET requests to https://app.stage.goboomtown.com
 app.get('*', async (req, res) => {
   if (req.path === '/') return; // Skip the root path as it's handled above
   
   try {
     // Construct the URL with query parameters
-    const url = new URL(`https://app.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
     
     // Add all query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -257,10 +257,10 @@ app.get('*', async (req, res) => {
   }
 });
 
-// Forward all POST requests to https://app.goboomtown.com
+// Forward all POST requests to https://app.stage.goboomtown.com
 app.post('*', async (req, res) => {
   try {
-    const url = new URL(`https://app.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
     
     // Add any query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -351,10 +351,10 @@ app.post('*', async (req, res) => {
   }
 });
 
-// Forward all PUT requests to https://app.goboomtown.com
+// Forward all PUT requests to https://app.stage.goboomtown.com
 app.put('*', async (req, res) => {
   try {
-    const url = new URL(`https://app.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
     
     // Add any query parameters to the URL
     Object.keys(req.query).forEach(key => {
@@ -445,10 +445,10 @@ app.put('*', async (req, res) => {
   }
 });
 
-// Forward all DELETE requests to https://app.goboomtown.com
+// Forward all DELETE requests to https://app.stage.goboomtown.com
 app.delete('*', async (req, res) => {
   try {
-    const url = new URL(`https://app.goboomtown.com${req.path}`);
+    const url = new URL(`https://app.stage.goboomtown.com${req.path}`);
     
     // Add any query parameters to the URL
     Object.keys(req.query).forEach(key => {
